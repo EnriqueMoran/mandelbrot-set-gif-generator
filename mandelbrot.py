@@ -6,32 +6,34 @@ from PIL import Image
 
 class Mandelbrot():
 
-    def __init__(self, iteration_depth, src_image, dst_image):
+    def __init__(self, image_width, image_heigth, iteration_depth, image_path):
+        self.image_width = image_width
+        self.image_heigth = image_heigth
         self.iteration_depth = iteration_depth
-        self.src_image = src_image
-        self.dst_image = dst_image
-        self.img = Image.open(self.src_image)
+        self.image_path = image_path
+        self.pixel_values = {(i, j) : (0, 0, 0) for i in range(int(-self.image_width / 2),  int(self.image_width / 2)) for j in range(int(-self.image_heigth / 2), int(self.image_heigth / 2))}
+        self.img = Image.new("RGB", (self.image_width, self.image_heigth))
         self.pixels = self.img.load()
-        self.pixel_values = {(i, j) : (0, 0, 0) for i in range(int(-self.img.size[0] / 2),  int(self.img.size[0] / 2)) for j in range(int(-self.img.size[1] / 2), int(self.img.size[1] / 2))}
+        
 
     def drawFractal(self, pixel_colors):
         def intToRGB(n):
             return n & 255, (n >> 8) & 255, (n >> 16) & 255 
 
-        for i in range(self.img.size[0]):
-            for j in range(self.img.size[1]):
-                val_i = i - self.img.size[0] / 1.3    # center image
-                val_j = j - self.img.size[1] / 1.9
-                value = self.mandelbrot(complex(val_i * 2 / self.img.size[0], val_j * 2 / self.img.size[1]))    # Normalize i and j between [-2, 2]
+        for i in range(self.image_width):
+            for j in range(self.image_heigth):
+                val_i = i - self.image_width / 1.3    # Center image
+                val_j = j - self.image_heigth / 1.9
+                value = self.mandelbrot(complex(val_i * 2 / self.image_width, val_j * 2 / self.image_heigth))    # Normalize i and j between [-2, 2]
                 if value == self.iteration_depth:
                     self.pixel_values[i,j] = (0, 0 ,0)
-                    self.pixels[i, j] = self.pixel_values[(int(i - self.img.size[0] / 2) ,int(j - self.img.size[1] / 2))]
+                    self.pixels[i, j] = self.pixel_values[(int(i - self.image_width / 2) ,int(j - self.image_heigth / 2))]
                 else:
                     val = value * 255 / self.iteration_depth
                     blue, green, red = intToRGB(value)
                     self.pixel_values[(i,j)] = (blue, green, red)
                     self.pixels[i, j] = self.pixel_values[(i,j)]
-        self.img.save(self.dst_image)
+        self.img.save(self.image_path)
 
 
     def mandelbrot(self, c, z = 0j):
@@ -49,10 +51,12 @@ class Mandelbrot():
 
 
 if __name__ == "__main__":
-    src_image = "mandelbrot_background_3500x3500.png"
-    dst_image = "mandelbrot_background_3500x3500.png"
+    image_path = "mandelbrot.png"
     t0 = time.time()
-    mandelbrot = Mandelbrot(700, src_image, dst_image)
+    iterations = 700
+    image_width = 500
+    image_heigth = 500
+    mandelbrot = Mandelbrot(image_width, image_heigth, iterations, image_path)
     mandelbrot.drawFractal(mandelbrot.pixels)
     t1 = time.time()
     print("Fractal generated in ",  t1 - t0, " seconds.")
