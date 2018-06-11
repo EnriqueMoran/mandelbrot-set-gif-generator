@@ -18,6 +18,7 @@ Afther generating the Mandelbrot set, the program saves it on the selected image
 ## Version
 
 **Version 0.1:** Mandelbrot set is generated on a png image. There are some errors at the bottom of image.
+
 **Version 0.2:** Input image no longer needed.
 
 
