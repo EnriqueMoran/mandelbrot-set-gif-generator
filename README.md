@@ -24,4 +24,4 @@ Afther generating the Mandelbrot set, the program saves it on the selected image
 
 ## Output
 
-![alt tag](mandelbrot_background_3500x3500.png)
+![alt tag](mandelbrot_background_9300x9300.png)
