@@ -21,7 +21,12 @@ Afther generating the Mandelbrot set, the program saves it on the selected image
 
 **Version 0.2:** Input image no longer needed.
 
+**Version 0.3:** Can create gif, zoom and coordinate bugs fixed.
+
 
 ## Output
 
 ![alt tag](mandelbrot9300x9300.png)
+
+
+![alt tag](example_gif.gif)
