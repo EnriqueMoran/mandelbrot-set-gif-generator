@@ -4,10 +4,11 @@ Creates a gif of Mandelbrot set being zoomed to a specific given point. _PIL_ an
 
 ## Usage 
 
-First step is creating a _mandelbrot object_ instance. The basic arguments are: _image_width_, _image_heigth_ and _image_path_. With these arguments
-the mandelbrot set generated will be centered at (0, 0) with no zoom; the default value of escape time algorithm iterations is 100 (for larger images this value
+First step is creating a _mandelbrot object_ instance. The basic arguments are: _image_width_, _image_heigth_ and _image_path_. With these arguments the mandelbrot set generated will be centered at (0, 0) with no zoom; the default value of escape time algorithm iterations is 100 (for larger images this value
 must be higher).
+
 Once the object is instanciated, call _createGif_ method. Necessary arguments are: _x coordinate_, _y coordinate_, _number of frames_, _initial zoom_, _zoom per frame_, _path_ and _iterations_.
+
 There is an extra argument that let the algorithm save every frame of the gif (True or False).
 
 x and y coordinates is the coordinate where the algorithm will zoom into, _number of frames_ is how many frames will the gif have.
@@ -58,6 +59,7 @@ Mandelbrot set will be zoomed on each iteration, the final result will be saved 
 
 **Version 0.35:** Gif creation improved, methods usage now is easier.
 
+**Version 0.36:** Mandelbrot set generation fixed.
 
 ## Output
 
