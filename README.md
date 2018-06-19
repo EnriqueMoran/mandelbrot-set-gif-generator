@@ -75,6 +75,9 @@ Mandelbrot set will be zoomed on each iteration, the final result will be saved 
 
 **Version 0.36:** Mandelbrot set generation fixed.
 
+**Version 1.0:** GUI and EXE version added!
+
+
 ## Output
 
 ![alt tag](readme_images/mandelbrot9300x9300.png)
