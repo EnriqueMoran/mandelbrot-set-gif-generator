@@ -1,8 +1,22 @@
 # mandelbrot-gif-generator
 Creates a gif of Mandelbrot set being zoomed to a specific given point. _PIL_ and _ctypes_ libraries needed.
 
+![alt tag](readme_images/gui_example.png)
 
-## Usage 
+
+## GUI Usage 
+
+All you have to set is _x_ and _y_ coordinates, the initial _zoom_ (if value is 1, the first frame will be the whole mMndelbrot set) and the _number of frames_.
+
+If you want larger images, just change _Width_ and _Height_ values (setting the same value for both is highly recommended), for higher definitions at deep zooms, change _Iterarions_ value.
+
+Once all parametes has been set, press *Generate image* and after the image (or gif) is shown, you can *Save* it. 
+For single image set _N.Frames_ to 1.
+
+For using the GUI version, run either _exe_ version or _.py_
+
+
+## Library Usage 
 
 First step is creating a _mandelbrot object_ instance. The basic arguments are: _image_width_, _image_heigth_ and _image_path_. With these arguments the mandelbrot set generated will be centered at (0, 0) with no zoom; the default value of escape time algorithm iterations is 100 (for larger images this value
 must be higher).
@@ -63,7 +77,7 @@ Mandelbrot set will be zoomed on each iteration, the final result will be saved 
 
 ## Output
 
-![alt tag](mandelbrot9300x9300.png)
+![alt tag](readme_images/mandelbrot9300x9300.png)
 
 
-![alt tag](example_gif.gif)
+![alt tag](readme_images/example_gif.gif)
