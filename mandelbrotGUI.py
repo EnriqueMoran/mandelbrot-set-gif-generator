@@ -182,7 +182,7 @@ class Main():
 
         final_zoom = Label(root, text = "Zoom:")
         final_zoom.config(font = ("DaunPenh", 10, "bold"))
-        final_zoom.place(x = 500, y = 470)
+        final_zoom.place(x = 435, y = 470)
 
         root.mainloop()
 
