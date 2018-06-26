@@ -35,12 +35,12 @@ image_width = 2500
 image_heigth = 2500
 n_frames = 25
 frames_per_zoom = 10
-zoom = 1
+image_zoom = 1
 x_coordinate = 0
 y_coordinate = 0    # We will zoom into (0, 0)
 
 mandelbrot = Mandelbrot(image_width, image_heigth, image_path)
-mandelbrot.createGif(x0, y0, n_frames, image_zoom, frames_per_zoom, image_path, iterations)    # This will save a 2500x2500 gif image with 25 frames
+mandelbrot.createGif(x_coordinate, y_coordinate, n_frames, image_zoom, frames_per_zoom, image_path, iterations)    # This will save a 2500x2500 gif image with 25 frames
 
 ```
 
@@ -48,13 +48,13 @@ If we want to generate just a single image, change number of frames argument to 
 
 ```
 n_frames = 1
-mandelbrot.createGif(x0, y0, n_frames, image_zoom, frames_per_zoom, image_path, iterations)
+mandelbrot.createGif(x_coordinate, y_coordinate, n_frames, image_zoom, frames_per_zoom, image_path, iterations)
 ```
 
 If we want to save every single frame generated, add True argument to _createGif_ method:
 
 ```
-mandelbrot.createGif(x0, y0, n_frames, image_zoom, frames_per_zoom, image_path, iterations, True)
+mandelbrot.createGif(x_coordinate, y_coordinate, n_frames, image_zoom, frames_per_zoom, image_path, iterations, True)
 ```
 
 ## How it works
