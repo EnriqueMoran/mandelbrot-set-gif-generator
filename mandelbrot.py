@@ -59,36 +59,39 @@ class Mandelbrot():
             return n & 255, (n >> 8) & 255, (n >> 16) & 255
 
         def draw(x0, y0, x1, y1):
-            pixels = {}
+
+            t_img = Image.new("HSV", (image_width, image_height))
+            pixels = t_img.load()
 
             for i in range(int(x0), int(x1)):
                 for j in range(int(y0), int(y1)):
-                    #val_i = transformInterval(0, self.image_width, self.s1_x, self.s2_x, i)    # Normalize i and j between [-2, 2]
-                    #val_j = transformInterval(0, self.image_height, self.s1_y, self.s2_y, j)
-
                     val_i = transformInterval(0, image_width, s1_x, s2_x, i)    # Normalize i and j between [-2, 2]
                     val_j = transformInterval(0, image_height, s1_y, s2_y, j)
-
                     value = mandelbrot(complex(val_i, val_j))
                     if value == iteration_depth:
-                        pixels[i, j] = (int(value), 255 ,0)
+                        pixels[i, j] = (int(value), 255 , 0)
                     else:
                         #blue, green, red = intToRGB(value)    # Black and red image
                         #pixels[i, j] = (red, green, blue)
                         pixels[i, j] = (int(value), 255, 255)
-            return pixels
+            return t_img
 
 
         with Pool(processes = 4) as pool:
-            p1, p2, p3, p4 = pool.starmap(draw, [(0, 0, self.image_width / 2, self.image_height / 2), (self.image_width / 2, 0, self.image_width, self.image_height / 2), (0, self.image_height / 2, self.image_width / 2, self.image_height), (self.image_width / 2, self.image_height / 2, self.image_width, self.image_height)])
+            p1, p2, p3, p4 = pool.starmap(draw, [(0, 0, image_width / 2, image_height / 2), (image_width / 2, 0, image_width, image_height / 2), (0, image_height / 2, image_width / 2, image_height), (image_width / 2, image_height / 2, image_width, image_height)])
             pool.close()
             pool.join()
-            res = {}
-            res.update(p1)
-            res.update(p2)
-            res.update(p3)
-            res.update(p4)
-        return res
+            img = Image.new("HSV", (image_width, image_height))
+            crop_p1 = p1.crop((0, 0, int(image_width / 2), int(image_height / 2)))
+            img.paste(crop_p1, (0, 0))
+            crop_p2 = p2.crop((int(image_width / 2), 0, image_width, int(image_height / 2)))
+            img.paste(crop_p2, (int(image_width / 2), 0))
+            crop_p3 = p3.crop((0, int(image_height / 2), int(image_width / 2), image_height))
+            img.paste(crop_p3, (0, int(image_height / 2)))
+            crop_p4 = p4.crop((int(image_width / 2), int(image_height / 2), image_width, image_height))
+            img.paste(crop_p4, ((int(image_width / 2), int(image_height / 2))))
+
+        return img
 
 
     def createGif(self, x, y, n_frames, initial_zoom, zoom_per_frame, path, iterations, save_frames = False):
@@ -98,13 +101,13 @@ class Mandelbrot():
         for i in range(n_frames):
             t0 = time.time()
             mand = Mandelbrot(self.image_width, self.image_height, path, iterations, zoom, x, y)
-            new_pixels = mand.drawFractal(0, 0, self.image_width, self.image_height)
+            t_img = mand.drawFractal(0, 0, self.image_width, self.image_height)
 
-            t_img = Image.new("HSV", (self.image_width, self.image_height))
-            px = t_img.load()
-            for i in range(self.image_width):
-                for j in range(self.image_height):
-                    px[i, j] = new_pixels[i, j]
+            #t_img = Image.new("HSV", (self.image_width, self.image_height))
+            #px = t_img.load()
+            #for i in range(self.image_width):
+            #    for j in range(self.image_height):
+            #        px[i, j] = new_pixels[i, j]
             images.append(t_img)
             t1 = time.time()
             print("Frame number ", str(i + 1), " generated. Time taken: ", str(t1 - t0))
@@ -121,10 +124,10 @@ class Mandelbrot():
 if __name__ == "__main__":
 
     image_path = "mandelbrot_test_thread.gif"
-    iterations = 1000
+    iterations = 500
     image_width = 500
     image_heigth = 500
-    n_frames = 1
+    n_frames = 5
     frames_per_zoom = 10
     image_zoom = 1
     x_coordinate = 0
