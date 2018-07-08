@@ -6,7 +6,7 @@ Creates a gif of Mandelbrot set being zoomed to a specific given point. _PIL_ an
 
 ## GUI Usage 
 
-All you have to set is _x_ and _y_ coordinates, the initial _zoom_ (if value is 1, the first frame will be the whole mMndelbrot set) and the _number of frames_.
+All you have to set is _x_ and _y_ coordinates, the initial _zoom_ (if value is 1, the first frame will be the whole Mandelbrot set) and the _number of frames_.
 
 If you want larger images, just change _Width_ and _Height_ values (setting the same value for both is highly recommended), for higher definitions at deep zooms, change _Iterarions_ value.
 
