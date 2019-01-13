@@ -1,7 +1,7 @@
 # mandelbrot-gif-generator
 Creates a gif of Mandelbrot set being zoomed to a specific given point. _PIL_ and _opencv_ and _numpy_ libraries are needed.
 
-![alt tag](/readme_images/gui_example.gif)
+![alt tag](/readme_images/gui_example_1.gif)
 
 
 ## GUI Usage 
