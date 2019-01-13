@@ -54,7 +54,7 @@ A sixe x size pixels image is generated and divided into four quadrants. Four su
 
 ![alt tag](readme_images/example_gif_2.gif)
 
-![alt tag](readme_images/example_image_1.gif)
+![alt tag](readme_images/example_image_1.png)
 
 ![alt tag](readme_images/example_image_2.gif)
 
