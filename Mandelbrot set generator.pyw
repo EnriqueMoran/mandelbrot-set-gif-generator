@@ -57,7 +57,7 @@ class Mandelbrot():
         for i in range(ini_x, fin_x):
             for j in range(ini_y, fin_y): 
                 norm_i = self.norm_width[i]
-                norm_j = self.norm_height[-j]
+                norm_j = self.norm_height[j]
                 c = complex(norm_i, norm_j)
                 z = self.calc(c)
                 if z == self.iterations:    # c is in Mandelbrot set
