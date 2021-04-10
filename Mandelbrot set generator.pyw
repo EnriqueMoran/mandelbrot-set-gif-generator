@@ -19,12 +19,15 @@ class Mandelbrot():
     __version__: "2.0"
 
 
-    def __init__(self, n_iter, size, x=0, y=0, zoom=1, send_frame_counter=None):
+    def __init__(self, n_iter, size, x=0, y=0, delta_x=0, delta_y=0, zoom=1, zoom_ratio=0.9, send_frame_counter=None):
         self.iterations = n_iter    # number of iterations
         self.size = size    # width and height has the same value
         self.x = x    # initial coordinate (x, y)
         self.y = y
+        self.delta_x = delta_x    # initial change in coordinates each frame
+        self.delta_y = delta_y
         self.zoom = zoom
+        self.zoom_ratio = zoom_ratio
         self.send_frame_counter = send_frame_counter
         self.values = np.zeros([self.size, self.size, 3])    # create matrix with 0's and 3 channels (RGB)
         self.norm_width = [self.normalize(x, self.x) for x in range(size)]
@@ -106,7 +109,11 @@ class Mandelbrot():
             if self.send_frame_counter:
                 self.send_frame_counter.send(i + 1)
 
-            self.zoom -= 0.1 * self.zoom    # zoom per frame
+            self.zoom *= self.zoom_ratio    # zoom per frame
+            self.x += self.delta_x
+            self.y += self.delta_y
+            self.delta_x *= self.zoom_ratio
+            self.delta_y *= self.zoom_ratio
             self.norm_width = [self.normalize(x, self.x) for x in range(self.size)]    # actualize x and y coordinates
             self.norm_height = [self.normalize(y, self.y) for y in range(self.size)]   # according to new zoom
 
@@ -132,7 +139,10 @@ class Gui():
 
         self.x_coord = None    # Mandelbrot set parameters
         self.y_coord = None
+        self.delta_x = None
+        self.delta_y = None
         self.zoom = None
+        self.zoom_ratio = None
         self.frames = None
         self.iterations = None
         self.width_value = None
@@ -204,10 +214,41 @@ class Gui():
 
 
         def loadValues():
-            self.x_coord = float(x_entry.get())
-            self.y_coord = float(y_entry.get())
-            self.zoom = float(zoom_entry.get())
-            self.frames = int(frames_entry.get())
+            x_coords = x_entry.get().split('-')
+            if len(x_coords) == 2:
+                self.x_coord = float(x_coords[0])
+                final_x_coord = float(x_coords[1])
+            else:
+                self.x_coord = float(x_entry.get())
+                final_x_coord = self.x_coord
+            y_coords = y_entry.get().split('-')
+            if len(y_coords) == 2:
+                self.y_coord = float(y_coords[0])
+                final_y_coord = float(y_coords[1])
+            else:
+                self.y_coord = float(y_entry.get())
+                final_y_coord = self.y_coord
+            zooms = zoom_entry.get().split('-')
+            if len(zooms) == 2:
+                self.zoom = float(zooms[0])
+                frames = frames_entry.get()
+                if frames == '':
+                    self.frames = math.ceil((math.log(float(zooms[1])) - math.log(self.zoom)) / math.log(0.9)) + 1
+                else:
+                    self.frames = int(frames)
+                self.zoom_ratio = math.exp((math.log(float(zooms[1])) - math.log(self.zoom)) / (self.frames - 1))
+            else:
+                self.zoom = float(zoom_entry.get())
+                self.frames = int(frames_entry.get())
+                self.zoom_ratio = 0.9
+            if self.frames > 1:
+                # 1 / (1 + zoom_ratio + zoom_ratio**2 + ...)
+                delta_ratio = (self.zoom_ratio - 1) / (self.zoom_ratio ** (self.frames - 1) - 1)
+                self.delta_x = (final_x_coord - self.x_coord) * delta_ratio
+                self.delta_y = (final_y_coord - self.y_coord) * delta_ratio
+            else:
+                self.delta_x = 0
+                self.delta_y = 0
             self.iterations = int(iterations_entry.get())
             self.size = int(size_entry.get())
 
@@ -230,7 +271,7 @@ class Gui():
                 self.stop_gif_thread = True
                 self.gif_thread.join()
 
-            mand = Mandelbrot(self.iterations, self.size, self.x_coord, self.y_coord, self.zoom, self.send_frame_counter)
+            mand = Mandelbrot(self.iterations, self.size, self.x_coord, self.y_coord, self.delta_x, self.delta_y, self.zoom, self.zoom_ratio, self.send_frame_counter)
             self.images = mand.createGif(self.frames, "", pool=self.process_pool)
 
             self.stop_gif_thread = False
