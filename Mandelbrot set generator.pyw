@@ -127,8 +127,8 @@ class Gui():
     def __init__(self):
         self.width = 710    # Window parameters
         self.height = 560
-        self.icon_name = "\\mandelbrot_icon.ico"
-        self.sample_image = "\\mandelbrot_set_sample.gif" 
+        self.icon_name = "mandelbrot_icon.ico"
+        self.sample_image = "mandelbrot_set_sample.gif" 
 
         self.x_coord = None    # Mandelbrot set parameters
         self.y_coord = None
@@ -160,7 +160,7 @@ class Gui():
         root.maxsize(width=self.width, height=self.height)
 
         root.title("Mandelbrot set gif generator")
-        root.iconbitmap(os.path.dirname(os.path.abspath(__file__)) + self.icon_name)
+        root.iconbitmap(os.path.join(os.path.dirname(os.path.abspath(__file__)), self.icon_name))
 
         main_text = Label(root, text="Parameters")
         main_text.config(font=("DaunPenh", 17, "bold"))
@@ -274,7 +274,8 @@ class Gui():
 
         def save():
             save_path = filedialog.asksaveasfilename(initialdir="/", title="Select file", filetypes=(("gif files","*.gif"),("all files","*.*")))
-            self.images[0].convert("RGB").save(save_path + ".gif", save_all=True, append_images=[i for i in self.images], loop=0, fps=20)
+            if save_path is not None:
+                self.images[0].convert("RGB").save(save_path + ".gif", save_all=True, append_images=[i for i in self.images], loop=0, fps=20)
 
 
         self.process_pool = Pool(processes=4)
@@ -284,7 +285,7 @@ class Gui():
         save_button = Button(root, text="  Save image  ", command=save)
         save_button.place(x=610, y=365)
 
-        img = PIL.Image.open(os.path.dirname(os.path.abspath(__file__)) + self.sample_image)
+        img = PIL.Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), self.sample_image))
         img = img.resize((455, 450))
         img = ImageTk.PhotoImage(img)
 
