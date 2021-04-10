@@ -4,12 +4,10 @@ import math
 import os
 import threading
 import PIL
-import io
 import numpy as np
 from PIL import Image, ImageTk
-from multiprocessing import Pool
+from multiprocessing import Pipe, Pool
 from tkinter import filedialog
-from contextlib import redirect_stdout
 from tkinter import *
 
 
@@ -21,12 +19,13 @@ class Mandelbrot():
     __version__: "2.0"
 
 
-    def __init__(self, n_iter, size, x=0, y=0, zoom=1):
+    def __init__(self, n_iter, size, x=0, y=0, zoom=1, send_frame_counter=None):
         self.iterations = n_iter    # number of iterations
         self.size = size    # width and height has the same value
         self.x = x    # initial coordinate (x, y)
         self.y = y
         self.zoom = zoom
+        self.send_frame_counter = send_frame_counter
         self.values = np.zeros([self.size, self.size, 3])    # create matrix with 0's and 3 channels (RGB)
         self.norm_width = [self.normalize(x, self.x) for x in range(size)]
         self.norm_height = [self.normalize(y, self.y) for y in range(size)]
@@ -67,20 +66,16 @@ class Mandelbrot():
         return self.values
 
 
-    def run_threads(self):    # Parallelize calcs with 4 subprocesses
-        with Pool(processes=4) as pool:
-            p1 = pool.apply_async(self.run, (0, int(self.size / 2), 0, int(self.size / 2)))
-            p2 = pool.apply_async(self.run, (0, int(self.size / 2), int(self.size / 2), self.size))
-            p3 = pool.apply_async(self.run, (int(self.size / 2), self.size, 0, int(self.size / 2)))
-            p4 = pool.apply_async(self.run, (int(self.size / 2), self.size, int(self.size / 2), self.size))
-            
-            r1 = (p1.get(timeout=1000))
-            r2 = (p2.get(timeout=1000))
-            r3 = (p3.get(timeout=1000))
-            r4 = (p4.get(timeout=1000))
+    def run_threads(self, pool):    # Parallelize calcs with 4 subprocesses
+        p1 = pool.apply_async(self.run, (0, int(self.size / 2), 0, int(self.size / 2)))
+        p2 = pool.apply_async(self.run, (0, int(self.size / 2), int(self.size / 2), self.size))
+        p3 = pool.apply_async(self.run, (int(self.size / 2), self.size, 0, int(self.size / 2)))
+        p4 = pool.apply_async(self.run, (int(self.size / 2), self.size, int(self.size / 2), self.size))
 
-            pool.close()
-            pool.join()
+        r1 = (p1.get(timeout=1000))
+        r2 = (p2.get(timeout=1000))
+        r3 = (p3.get(timeout=1000))
+        r4 = (p4.get(timeout=1000))
 
         for i in range(0, int(self.size / 2)):
             for j in range(0, int(self.size / 2)):
@@ -100,14 +95,16 @@ class Mandelbrot():
         return self.values
 
 
-    def createGif(self, n_frames, path, save=False):
+    def createGif(self, n_frames, path, save=False, pool=None):
+        pool = pool or Pool(processes=4)
         frames = []
         for i in range(n_frames):
-            frame = self.run_threads().astype(np.uint8)
+            frame = self.run_threads(pool).astype(np.uint8)
             frame = cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)    # change frame from HSV to RGB
             img = PIL.Image.fromarray(frame, 'RGB')    # convert to PIL image format
             frames.append(img)
-            print(str(i + 1))
+            if self.send_frame_counter:
+                self.send_frame_counter.send(i + 1)
 
             self.zoom -= 0.1 * self.zoom    # zoom per frame
             self.norm_width = [self.normalize(x, self.x) for x in range(self.size)]    # actualize x and y coordinates
@@ -144,6 +141,8 @@ class Gui():
         self.images = None
         self.img = None
         self.gif = []
+        self.stop_gif_thread = False
+        self.gif_thread = None
 
 
     def initialize(self):
@@ -214,18 +213,12 @@ class Gui():
 
 
         def captureOutput():
-            f = io.StringIO()    # Capture print output
             status.configure(text="0 of " + str(self.frames) + " frames created")
             while True:
-                with redirect_stdout(f):
-                    out = f.getvalue()
-                    status.configure(text=out.strip()[-1:] + " of " + str(self.frames) + " frames created")   # TO FIX
-                    time.sleep(0.4)    # Memory error
-                    try:
-                        if int(out.strip()[-1:]) == self.frames:
+                    out = self.recv_frame_counter.recv()
+                    status.configure(text=str(out) + " of " + str(self.frames) + " frames created")
+                    if out == self.frames:
                             return None    # Kill thread
-                    except:
-                        pass
             return None
 
 
@@ -233,12 +226,16 @@ class Gui():
             generate_button['state'] = 'disabled'
             save_button['state'] = 'disabled'
             final_zoom.configure(text="Final zoom: generating")
+            if self.gif_thread:
+                self.stop_gif_thread = True
+                self.gif_thread.join()
 
-            mand = Mandelbrot(self.iterations, self.size, self.x_coord, self.y_coord, self.zoom)
-            self.images = mand.createGif(self.frames, "")
+            mand = Mandelbrot(self.iterations, self.size, self.x_coord, self.y_coord, self.zoom, self.send_frame_counter)
+            self.images = mand.createGif(self.frames, "", pool=self.process_pool)
 
-            gif_thread = threading.Thread(target=displayGif)
-            gif_thread.start()
+            self.stop_gif_thread = False
+            self.gif_thread = threading.Thread(target=displayGif)
+            self.gif_thread.start()
 
             generate_button['state'] = 'normal'
             save_button['state'] = 'normal'
@@ -255,16 +252,19 @@ class Gui():
 
             gif_image = Label(image=self.gif[0], borderwidth=5, relief="solid")
 
-            while True:
+            while not self.stop_gif_thread:
                 for i in self.gif:
                     gif_image.configure(image=i, borderwidth=5, relief="solid")
                     gif_image.place(x=10, y=25)
+                    if self.stop_gif_thread:
+                        break
                     time.sleep(0.1)    # slows gif display's speed
 
 
         def run():
             loadValues()
-            status.configure(text="0 of " + str(self.frames) + " frames created.")
+            self.recv_frame_counter, self.send_frame_counter = Pipe(False)
+            self.send_frame_counter.send(0)
             self.gif = []
             generate_thread = threading.Thread(target=generateMandelbrot)
             capture_output= threading.Thread(target=captureOutput)
@@ -277,6 +277,7 @@ class Gui():
             self.images[0].convert("RGB").save(save_path + ".gif", save_all=True, append_images=[i for i in self.images], loop=0, fps=20)
 
 
+        self.process_pool = Pool(processes=4)
         generate_button = Button(root, text="Generate image", command=run)
         generate_button.place(x=490, y=365)
 
