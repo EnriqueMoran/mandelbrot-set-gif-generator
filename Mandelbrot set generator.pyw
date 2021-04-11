@@ -16,7 +16,7 @@ class Mandelbrot():
 
     __author__: "EnriqueMoran"
 
-    __version__: "2.0"
+    __version__: "2.1"
 
 
     def __init__(self, n_iter, size, x=0, y=0, delta_x=0, delta_y=0, rotation=0, delta_rotation=0, zoom=1, zoom_ratio=0.9, send_frame_counter=None):
