@@ -69,7 +69,7 @@ class Mandelbrot():
                 if z == self.iterations:    # c is in Mandelbrot set
                     self.values[j, i] = (int(z), 255, 0)    # HSV values
                 else:
-                    self.values[j, i] = (int(z), 255, 255)
+                    self.values[j, i] = (int(z)%180, 255, 255)
         return self.values
 
 
