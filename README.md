@@ -10,7 +10,8 @@ This app consists of the following parameters:
 
 **X:** x coordinate of zooming point.
 **Y:** y coordinate of zooming point.
-**Initial zoom:** if value is 1, it shown the whole Mandelbrot set.
+**Initial zoom:** if value is 1, it shows the whole Mandelbrot set.
+**Rotation:** amount in degrees to rotate clockwise.
 **N. frames:** Number of frames of gif file generated, zoom will be reduced by 0.1 per frame.
 **Iterations:** Number of iterations to determine whether a point is in Mandelbrot set, the higher this value is, the more time the app will need to
 generate the file.
@@ -38,13 +39,13 @@ A sixe x size pixels image is generated and divided into four quadrants. Four su
 
 **Version 2.0:** Major changes. Library and GUI code merged, parallelized calculus, optimized performance.
 
+**Version 2.1:** Many bugs fixed. _Rotation_ added. _X_, _Y_, _Zoom_, and _Rotation_ now support two values separated by space-hyphen-space.  _N. Frames_ can be left blank when two zoom values are given.
 
 
 ## Bugs
 
-- If you want to generate multiple images, restarting the app is highly recommended.
-- If save image button is pressed and the window is closed, the app will stop working.
-- Frame generation not working correctly.
+- Inputs not validated.
+- Crash when closing the window.
 
 
 
